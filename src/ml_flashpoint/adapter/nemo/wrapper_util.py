@@ -240,3 +240,20 @@ def wrap_trainer_checkpoint_io_with_mlflashpoint(
         ml_flashpoint_checkpoint_io = MLFlashpointAsyncFinalizableCheckpointIO(ml_flashpoint_checkpoint_io)
 
     trainer.strategy.checkpoint_io = ml_flashpoint_checkpoint_io
+    from typing import Any
+from megatron.core.dist_checkpointing.strategies import (
+    FullyParallelSaveWrapper,
+    FullyParallelLoadWrapper
+)
+
+def apply_parallel_wrappers(
+    save_strategy: Any,
+    load_strategy: Any,
+    use_fully_parallel_wrapper: bool = False
+) -> tuple[Any, Any]:
+    """Wraps checkpoint strategies for parallel execution."""
+    if use_fully_parallel_wrapper:
+        save_strategy = FullyParallelSaveWrapper(save_strategy)
+        load_strategy = FullyParallelLoadWrapper(load_strategy)
+    return save_strategy, load_strategy
+
